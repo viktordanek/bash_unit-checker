@@ -108,7 +108,8 @@
                                                                         } ;
                                                                 in
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo ${ success }
+                                                                        ${ pkgs.coreutils }/bin/echo ${ success } &&
+                                                                            exit 1
                                                                     '' ;
                                                     } ;
                                                 } ;
