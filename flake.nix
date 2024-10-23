@@ -93,7 +93,7 @@
                                                                 } ;
                                                         in
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/mkdir $out
+                                                                ${ pkgs.coreutils }/bin/touch $out
                                                             '' ;
                                             } ;
                                     lib = lib ;
