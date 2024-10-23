@@ -120,7 +120,8 @@
                                                                             exit 1
                                                                         fi &&
                                                                         ${ pkgs.coreutils }/bin/echo ${ success.out } &&
-                                                                        ${ pkgs.coreutils }/bin/echo ${ success.outPath }
+                                                                        ${ pkgs.coreutils }/bin/echo ${ success.outPath } &&
+                                                                        ${ pkgs.coreutils }/bin/echo ${ builtins.typeOf success }
                                                                     '' ;
                                                             } ;
                                                 } ;
