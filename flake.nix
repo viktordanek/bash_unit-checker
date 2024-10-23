@@ -20,6 +20,8 @@
                                 } :
                                     pkgs.stdenv.mkDerivation
                                         {
+                                            doCheck = true ;
+                                            doInstallCheck = true ;
                                             name = "bash-unit-checker" ;
                                             src = ./. ;
                                             installPhase =
@@ -79,14 +81,17 @@
                                                         installPhase =
                                                             let
                                                                 failure =
-                                                                    lib
-                                                                        {
-                                                                            name = "expected" ;
-                                                                            observed =
-                                                                                ''
-                                                                                    ${ pkgs.coreutils }/bin/echo 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c > ${ environment-variable "OBSERVED" }
-                                                                                '' ;
-                                                                        } ;
+                                                                    builtins.tryEval
+                                                                        (
+                                                                            lib
+                                                                                {
+                                                                                    name = "expected" ;
+                                                                                    observed =
+                                                                                        ''
+                                                                                            ${ pkgs.coreutils }/bin/echo 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c > ${ environment-variable "OBSERVED" }
+                                                                                        '' ;
+                                                                                }
+                                                                        ) ;
                                                                 success =
                                                                     lib
                                                                         {
@@ -99,7 +104,10 @@
                                                                 in
                                                                     ''
                                                                         ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success 
+                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success &&
+                                                                            ${ pkgs.coreutils }/bin/echo "${ builtins.concatStringsSep " ;\n" ( builtins.attrNames failure.value ) }" &&
+                                                                            ${ pkgs.coreutils }/bin/echo &&
+                                                                            ${ pkgs.coreutils }/bin/echo '${ failure.value.installPhase }'
                                                                     '' ;
                                                     } ;
                                                 } ;
