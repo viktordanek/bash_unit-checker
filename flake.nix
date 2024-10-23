@@ -81,6 +81,18 @@
                                                 src = ./. ;
                                                 installPhase =
                                                     let
+                                                        failure =
+                                                            builtins.tryEval
+                                                                (
+                                                                    lib
+                                                                        {
+                                                                            name = "expected" ;
+                                                                            observed =
+                                                                                ''
+                                                                                    ${ pkgs.coreutils }/bin/mkdir ${ environment-variable "OBSERVED" }
+                                                                                '' ;
+                                                                        }
+                                                                ) ;
                                                         success =
                                                             builtins.tryEval
                                                                 (
@@ -96,7 +108,8 @@
                                                         in
                                                             ''
                                                                 ${ pkgs.coreutils }/bin/touch $out &&
-                                                                    ${ if success.success then "${ pkgs.coreutils }/bin/true" else "exit 1" }
+                                                                    ${ if success.success then "${ pkgs.coreutils }/bin/true" else "exit 1" } &&
+                                                                    ${ if failure.success then "${ pkgs.coreutils }/bin/true" else "${ pkgs.coreutils }/bin/true" }
                                                             '' ;
                                             } ;
                                     lib = lib ;
