@@ -98,7 +98,7 @@
                                                                             ''
                                                                                 test_${ builtins.toString ( 1001 + index ) } ( )
                                                                                     {
-                                                                                        assert_equals "${ assertion.expected }" "${ assertion.expected }" ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
+                                                                                        assert_equals ${ pkgs.writeShellScript "assertion" assertion.expected } ${ pkgs.writeShellScript "assertion" assertion.expected } ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
                                                                                     }
                                                                             '' ;
                                                         test = builtins.concatStringsSep " &&\n" ( builtins.genList generator ( builtins.length assertions ) ) ;
