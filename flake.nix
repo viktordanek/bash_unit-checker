@@ -59,20 +59,10 @@
                                                         '' ;
                                                     in
                                                         ''
-                                                            cleanup ( )
-                                                                {
-                                                                    ${ pkgs.coreutils }/bin/echo "${ pkgs.git }/bin/git --recursive --force ${ name } && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OBSERVED" } ${ name } && ${ pkgs.git }/bin/git add ${ name }" &&
-                                                                        exit ${ environment-variable "?" }
-                                                                } &&
-                                                                trap cleanup EXIT &&
-                                                                export OBSERVED=$out &&
+                                                            export OBSERVED=$out &&
                                                                 ${ pkgs.writeShellScript "observed" observed } &&
                                                                 export EXPECTED=${ self + "/" + name } &&
-                                                                if ! ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
-                                                                then
-                                                                    ${ pkgs.coreutils }/bin/echo FAILURE &&
-                                                                        exit 1
-                                                                fi
+                                                                ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
                                                         '' ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
@@ -115,7 +105,7 @@
                                                                 ${ pkgs.coreutils }/bin/touch $out &&
                                                                     ${ if success.success then "${ pkgs.coreutils }/bin/true" else "exit 1" } &&
                                                                     # ${ if failure.success then "exit 1" else "${ pkgs.coreutils }/bin/true" }
-                                                                    ${ pkgs.coreutils }/bin/echo ${ failure.value }
+                                                                    true
                                                             '' ;
                                             } ;
                                     lib = lib ;
