@@ -67,6 +67,11 @@
                                             '' ;
                                         in
                                             ''
+                                                cleanup ( )
+                                                    {
+                                                        ${ pkgs.coreutils }/bin/echo "${ pkgs.git }/bin/git --recursive --force ${ name } && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OBSERVED" } ${ name } && ${ pkgs.git }/bin/git add ${ name }"
+                                                    } &&
+                                                    trap cleanup EXIT
                                             '' ;
                             pkgs = import nixpkgs { system = system ; } ;
                             strip = builtins.getAttr system ( builtins.getAttr "lib" strip-lib ) ;
@@ -82,7 +87,14 @@
                                                         assertions =
                                                             [
                                                                 {
-                                                                    expected = "" ;
+                                                                    expected =
+                                                                        ''
+                                                                            cleanup ( )
+                                                                                {
+                                                                                    ${ pkgs.coreutils }/bin/echo "${ pkgs.git }/bin/git --recursive --force expecteds/a && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OBSERVED" } expecteds/a && ${ pkgs.git }/bin/git add expecteds/a"
+                                                                                } &&
+                                                                                trap cleanup EXIT
+                                                                        '' ;
                                                                     observed =
                                                                         lib
                                                                             {
@@ -92,6 +104,7 @@
                                                                     message = "CRAZE" ;
                                                                 }
                                                             ] ;
+                                                        file = pkgs.writeShellScript "file" ;
                                                         generator =
                                                             index :
                                                                 let
@@ -101,9 +114,11 @@
                                                                             ''
                                                                                 test_${ builtins.toString ( 1001 + index ) } ( )
                                                                                     {
-                                                                                        assert_equals ${ pkgs.writeShellScript "assertion" assertion.expected } ${ pkgs.writeShellScript "assertion" assertion.observed } ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
+                                                                                        assert_equals ${ file ( replace ( strip assertion.expected ) ) } ${ file ( replace ( strip assertion.observed ) ) }
                                                                                     }
                                                                             '' ;
+                                                        replace =
+                                                            builtins.replaceStrings [ "${ pkgs.coreutils }" "${ pkgs.git }" ] [ "${ environment-variable "pkgs.coreutils" }" "${ environment-variable "pkgs.git" }" ] ;
                                                         test = builtins.concatStringsSep " &&\n" ( builtins.genList generator ( builtins.length assertions ) ) ;
                                                         in
                                                             ''
