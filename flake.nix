@@ -93,7 +93,8 @@
                                                                 } ;
                                                         in
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/touch $out
+                                                                ${ pkgs.coreutils }/bin/touch $out &&
+                                                                    ${ builtins.trace ( builtins.typeOf resource ) "${ pkgs.coreutils }/bin/true" }
                                                             '' ;
                                             } ;
                                     lib = lib ;
