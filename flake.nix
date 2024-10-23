@@ -53,7 +53,7 @@
                                                                     done
                                                                 }
                                                 '' ;
-                                        in
+                                        xxx =
                                             ''
                                                 cleanup ( )
                                                     {
@@ -64,6 +64,9 @@
                                                     ${ pkgs.writeShellScript "observed" observed } &&
                                                     export EXPECTED=${ self + "/" + name } &&
                                                     ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
+                                            '' ;
+                                        in
+                                            ''
                                             '' ;
                             pkgs = import nixpkgs { system = system ; } ;
                             strip = builtins.getAttr system ( builtins.getAttr "lib" strip-lib ) ;
@@ -98,7 +101,7 @@
                                                                             ''
                                                                                 test_${ builtins.toString ( 1001 + index ) } ( )
                                                                                     {
-                                                                                        assert_equals ${ pkgs.writeShellScript "assertion" assertion.expected } ${ pkgs.writeShellScript "assertion" assertion.expected } ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
+                                                                                        assert_equals ${ pkgs.writeShellScript "assertion" assertion.expected } ${ pkgs.writeShellScript "assertion" assertion.observed } ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
                                                                                     }
                                                                             '' ;
                                                         test = builtins.concatStringsSep " &&\n" ( builtins.genList generator ( builtins.length assertions ) ) ;
