@@ -1,0 +1,19 @@
+name: Check Flake Inputs
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  check-local-inputs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check for local inputs in flake.nix
+        run: |
+          if grep -q 'type = "path"' flake.nix; then
+            echo "Error: One or more inputs are local paths."
+            exit 1
+          else
+            echo "No local inputs found."
+          fi

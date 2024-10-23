@@ -1,0 +1,40 @@
+name: Update flake dependencies
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering of the workflow as well
+
+jobs:
+  update-flake:
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Nix
+        uses: cachix/install-nix-action@v21
+        with:
+          extra_nix_config: experimental-features = nix-command flakes
+
+      - name: Update flake dependencies
+        run: |
+          nix flake lock &&
+            if [[ -n $(git status --porcelain) ]]
+            then
+              nix flake check &&
+                BRANCH=scratch/$(uuidgen) &&
+                git checkout -b ${BRANCH} &&
+                git config --global user.name "github-actions[bot]" &&
+                git config --global user.email "github-actions[bot]@users.noreply.github.com" &&
+                git add flake.lock &&
+                git commit -m "Update flake-utils and nixpkgs to latest versions" &&
+                git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/viktordanek/environment-variable.git HEAD &&
+                gh pr create --base main --head ${BRANCH} --title "Update flake dependencies" --body "This PR updates flake-utils and nixpkgs to their latest versions."
+            else
+              echo "No updates found. Skipping."
+            fi
+          
