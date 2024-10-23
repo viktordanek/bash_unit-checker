@@ -113,7 +113,7 @@
                                                         in
                                                             ''
                                                                 ${ pkgs.coreutils }/bin/touch $out &&
-                                                                    # ${ if success.success then "${ pkgs.coreutils }/bin/true" else "exit 1" } &&
+                                                                    ${ if success.success then "${ pkgs.coreutils }/bin/true" else "exit 1" } &&
                                                                     # ${ if failure.success then "exit 1" else "${ pkgs.coreutils }/bin/true" }
                                                                     ${ pkgs.coreutils }/bin/echo ${ failure.value }
                                                             '' ;
