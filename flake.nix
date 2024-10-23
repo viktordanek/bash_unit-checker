@@ -72,6 +72,7 @@
                                                         ${ pkgs.coreutils }/bin/echo "${ pkgs.git }/bin/git --recursive --force ${ name } && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OBSERVED" } ${ name } && ${ pkgs.git }/bin/git add ${ name }"
                                                     } &&
                                                     trap cleanup EXIT
+                                                    export OBSERVED=$out
                                             '' ;
                             pkgs = import nixpkgs { system = system ; } ;
                             strip = builtins.getAttr system ( builtins.getAttr "lib" strip-lib ) ;
@@ -94,6 +95,7 @@
                                                                                     ${ pkgs.coreutils }/bin/echo "${ pkgs.git }/bin/git --recursive --force expecteds/a && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OBSERVED" } expecteds/a && ${ pkgs.git }/bin/git add expecteds/a"
                                                                                 } &&
                                                                                 trap cleanup EXIT
+                                                                                export OBSERVED=$out
                                                                         '' ;
                                                                     observed =
                                                                         lib
@@ -118,7 +120,9 @@
                                                                                     }
                                                                             '' ;
                                                         replace =
-                                                            builtins.replaceStrings [ "${ pkgs.coreutils }" "${ pkgs.git }" ] [ "${ environment-variable "pkgs.coreutils" }" "${ environment-variable "pkgs.git" }" ] ;
+                                                            builtins.replaceStrings
+                                                                [ "${ pkgs.coreutils }" "${ pkgs.git }" "${ environment-variable "OBSERVED" }" ]
+                                                                [ "${ environment-variable " pkgs.coreutils " }" "${ environment-variable " pkgs.git " }" "${ environment-variable " environment-variable \"OBSERVED\" " }" ] ;
                                                         test = builtins.concatStringsSep " &&\n" ( builtins.genList generator ( builtins.length assertions ) ) ;
                                                         in
                                                             ''
