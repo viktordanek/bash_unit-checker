@@ -82,20 +82,21 @@
                                                     {
                                                         name = "test-lib" ;
                                                         src = ./. ;
-                                                        installPhase =
+                                                        buildPhase =
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/touch $out
+                                                            '' ;
+                                                        checkPhase =
                                                             let
                                                                 failure =
-                                                                    builtins.tryEval
-                                                                        (
-                                                                            lib
-                                                                                {
-                                                                                    name = "expected" ;
-                                                                                    observed =
-                                                                                        ''
-                                                                                            ${ pkgs.coreutils }/bin/echo 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c > ${ environment-variable "OBSERVED" }
-                                                                                        '' ;
-                                                                                }
-                                                                        ) ;
+                                                                    lib
+                                                                        {
+                                                                            name = "expected" ;
+                                                                            observed =
+                                                                                ''
+                                                                                    ${ pkgs.coreutils }/bin/echo 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c > ${ environment-variable "OBSERVED" }
+                                                                                '' ;
+                                                                        } ;
                                                                 success =
                                                                     lib
                                                                         {
@@ -107,8 +108,8 @@
                                                                         } ;
                                                                 in
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/echo SUCCESS:  ${ success }
+                                                                        ${ pkgs.coreutils }/bin/touch $out &&
+                                                                            ${ pkgs.coreutils }/bin/echo ${ success } 
                                                                     '' ;
                                                     } ;
                                                 } ;
