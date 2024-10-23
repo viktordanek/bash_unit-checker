@@ -107,7 +107,8 @@
                                                                     '' ;
                                                                 checkPhase =
                                                                     ''
-                                                                        exit 0
+                                                                        ${ pkgs.coreutils }/bin/echo '${ success }' &&
+                                                                            exit 0
                                                                     '' ;
                                                             } ;
                                                 } ;
