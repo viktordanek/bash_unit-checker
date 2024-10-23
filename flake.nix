@@ -22,7 +22,7 @@
                                         {
                                             name = "bash-unit-checker" ;
                                             src = ./. ;
-                                            buildPhase =
+                                            installPhase =
                                                 let
                                                     test =
                                                         ''
@@ -57,14 +57,13 @@
                                                                             done
                                                                         }
                                                         '' ;
-                                                    xxx =
+                                                    in
                                                         ''
                                                             export OBSERVED=$out &&
                                                                 ${ pkgs.writeShellScript "observed" observed } &&
                                                                 export EXPECTED=${ self + "/" + name } &&
                                                                 ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
                                                         '' ;
-                                                    in "${ pkgs.coreutils }/bin/touch $out" ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
                             strip = builtins.getAttr system ( builtins.getAttr "lib" strip-lib ) ;
@@ -100,8 +99,7 @@
                                                                 in
                                                                     ''
                                                                         ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success &&
-                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ failure } $out/failure
+                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success 
                                                                     '' ;
                                                     } ;
                                                 } ;
