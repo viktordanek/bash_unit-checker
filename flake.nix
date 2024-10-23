@@ -108,8 +108,7 @@
                                                                         } ;
                                                                 in
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/touch $out &&
-                                                                            ${ pkgs.coreutils }/bin/echo ${ success } 
+                                                                        ${ pkgs.coreutils }/bin/echo ${ success }
                                                                     '' ;
                                                     } ;
                                                 } ;
