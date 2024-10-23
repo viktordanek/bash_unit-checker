@@ -24,7 +24,12 @@
                                             doInstallCheck = true ;
                                             name = "bash-unit-checker" ;
                                             src = ./. ;
-                                            installPhase =
+                                            buildPhase =
+                                                ''
+                                                    export OBSERVED=$out &&
+                                                        ${ pkgs.writeShellScript "observed" observed }
+                                                '' ;
+                                            checkPhase =
                                                 let
                                                     test =
                                                         ''
@@ -62,7 +67,6 @@
                                                     in
                                                         ''
                                                             export OBSERVED=$out &&
-                                                                ${ pkgs.writeShellScript "observed" observed } &&
                                                                 export EXPECTED=${ self + "/" + name } &&
                                                                 ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
                                                         '' ;
@@ -104,10 +108,7 @@
                                                                 in
                                                                     ''
                                                                         ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success &&
-                                                                            ${ pkgs.coreutils }/bin/echo "${ builtins.concatStringsSep " ;\n" ( builtins.attrNames failure.value ) }" &&
-                                                                            ${ pkgs.coreutils }/bin/echo &&
-                                                                            ${ pkgs.coreutils }/bin/echo '${ failure.value.installPhase }'
+                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success
                                                                     '' ;
                                                     } ;
                                                 } ;
