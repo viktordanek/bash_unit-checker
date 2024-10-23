@@ -84,6 +84,10 @@
                                                         src = ./. ;
                                                         doCheck = true ;
                                                         buildPhase =
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/touch $out
+                                                            '' ;
+                                                        checkPhase =
                                                             let
                                                                 failure =
                                                                     lib
@@ -107,18 +111,7 @@
                                                                         } ;
                                                                 in
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/echo ${ success } > $out/success.asc
-                                                                    '' ;
-                                                        checkPhase =
-                                                            let
-                                                                in
-                                                                    ''
-                                                                        if [ ! -f $out/success.asc ]
-                                                                        then
-                                                                            ${ pkgs.coreutils }/bin/echo SUCCESS >&2 &&
-                                                                                exit 1
-                                                                        fi
+                                                                        ${ pkgs.coreutils }/bin/echo '${ success.checkPhase }'
                                                                     '' ;
                                                     } ;
                                                 } ;
