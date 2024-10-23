@@ -121,7 +121,11 @@
                                                                         elif [ $( ${ pkgs.coreutils }/bin/cat $out/failure ) != 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c ]
                                                                         then
                                                                             exit 1
-                                                                        fi
+                                                                        fi &&
+                                                                        ${ pkgs.coreutils }/bin/echo ${ success.out } &&
+                                                                        ${ pkgs.coreutils }/bin/echo ${ success.outPath } &&
+                                                                        ${ pkgs.coreutils }/bin/echo ${ failure.out } &&
+                                                                        ${ pkgs.coreutils }/bin/echo ${ failure.outPath }
                                                                     '' ;
                                                             } ;
                                                 } ;
