@@ -100,7 +100,8 @@
                                                                 in
                                                                     ''
                                                                         ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success
+                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success &&
+                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ failure } $out/failure
                                                                     '' ;
                                                     } ;
                                                 } ;
