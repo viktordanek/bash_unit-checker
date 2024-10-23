@@ -29,13 +29,13 @@
                                                             test_diff ( )
                                                                 {
                                                                     assert_equals "" "$( ${ pkgs.diffutils }/bin/diff --brief --recursive ${ environment-variable "EXPECTED" } ${ environment-variable "OBSERVED" } )" "We expect expected to exactly equal observed."
-                                                                } &&
+                                                                 } &&
                                                                     test_expected_observed ( )
                                                                         {
                                                                             ${ pkgs.findutils }/bin/find ${ environment-variable "EXPECTED" } -type f | while read EXPECTED_FILE
                                                                             do
-                                                                                RELATIVE=$( ${ pkgs.coreutils }/bin/realpath --relative-to ${ environment-variable "EXPECTED" } ${ environment-variable "EXPECTED_FILE" } ) &&
-                                                                                    OBSERVED_FILE=${ environment-variable "OBSERVED" }/${ environment-variable "RELATIVE" } &&
+                                                                                RELATIVE=$( ${ pkgs.coreutils }/bin/echo ${ environment-variable "EXPECTED_FILE" } | ${ pkgs.gnused }/bin/sed -e "s#^${ environment-variable "EXPECTED" }##" ) &&
+                                                                                    OBSERVED_FILE=${ environment-variable "OBSERVED" }${ environment-variable "RELATIVE" } &&
                                                                                     if [ ! -f ${ environment-variable "OBSERVED_FILE" } ]
                                                                                     then
                                                                                         fail "The observed file for ${ environment-variable "RELATIVE" } does not exist."
@@ -47,8 +47,8 @@
                                                                         {
                                                                             ${ pkgs.findutils }/bin/find ${ environment-variable "OBSERVED" } -type f | while read OBSERVED_FILE
                                                                             do
-                                                                                RELATIVE=$( ${ pkgs.coreutils }/bin/realpath --relative-to ${ environment-variable "OBSERVED" } ${ environment-variable "OBSERVED_FILE" } ) &&
-                                                                                    EXPECTED_FILE=${ environment-variable "EXPECTED" }/${ environment-variable "RELATIVE" } &&
+                                                                                RELATIVE=$( ${ pkgs.coreutils }/bin/echo ${ environment-variable "OBSERVED_FILE" } | ${ pkgs.gnused }/bin/sed -e "s#^${ environment-variable "OBSERVED" }##" ) &&
+                                                                                    EXPECTED_FILE=${ environment-variable "EXPECTED" }${ environment-variable "RELATIVE" } &&
                                                                                     if [ ! -f ${ environment-variable "EXPECTED_FILE" } ]
                                                                                     then
                                                                                         fail "The expected file for ${ environment-variable "RELATIVE" } does not exist."
@@ -67,7 +67,10 @@
                                                                 export OBSERVED=$out &&
                                                                 ${ pkgs.writeShellScript "observed" observed } &&
                                                                 export EXPECTED=${ self + "/" + name } &&
-                                                                ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
+                                                                if ! ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
+                                                                then
+                                                                    exit 1
+                                                                fi
                                                         '' ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
