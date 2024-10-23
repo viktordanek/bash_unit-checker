@@ -15,19 +15,19 @@
                             environment-variable = builtins.getAttr system ( builtins.getAttr "lib" environment-variable-lib ) ;
                             lib =
                                 {
+                                    flag ,
                                     name ? "expected" ,
                                     observed
                                 } :
                                     pkgs.stdenv.mkDerivation
                                         {
-                                            doCheck = true ;
-                                            doInstallCheck = true ;
                                             name = "bash-unit-checker" ;
                                             src = ./. ;
                                             buildPhase =
                                                 ''
                                                     export OBSERVED=$out &&
-                                                        ${ pkgs.writeShellScript "observed" observed }
+                                                        ${ pkgs.writeShellScript "observed" observed } &&
+                                                        exit ${ if flag then "0" else "1" }
                                                 '' ;
                                             checkPhase =
                                                 let
@@ -82,15 +82,13 @@
                                                     {
                                                         name = "test-lib" ;
                                                         src = ./. ;
+                                                        doCheck = true ;
                                                         buildPhase =
-                                                            ''
-                                                                ${ pkgs.coreutils }/bin/touch $out
-                                                            '' ;
-                                                        checkPhase =
                                                             let
                                                                 failure =
                                                                     lib
                                                                         {
+                                                                            flag = false ;
                                                                             name = "expected" ;
                                                                             observed =
                                                                                 ''
@@ -100,6 +98,7 @@
                                                                 success =
                                                                     lib
                                                                         {
+                                                                            flag = true ;
                                                                             name = "expected" ;
                                                                             observed =
                                                                                 ''
@@ -108,8 +107,18 @@
                                                                         } ;
                                                                 in
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo ${ success } &&
-                                                                            exit 1
+                                                                        ${ pkgs.coreutils }/bin/mkdir $out &&
+                                                                            ${ pkgs.coreutils }/bin/echo ${ success } > $out/success.asc
+                                                                    '' ;
+                                                        checkPhase =
+                                                            let
+                                                                in
+                                                                    ''
+                                                                        if [ ! -f $out/success.asc ]
+                                                                        then
+                                                                            ${ pkgs.coreutils }/bin/echo SUCCESS >&2 &&
+                                                                                exit 1
+                                                                        fi
                                                                     '' ;
                                                     } ;
                                                 } ;
