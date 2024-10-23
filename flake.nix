@@ -82,18 +82,21 @@
                                                 installPhase =
                                                     let
                                                         success =
-                                                            lib
-                                                                {
-                                                                    name = "expected" ;
-                                                                    observed =
-                                                                        ''
-                                                                            ${ pkgs.coreutils }/bin/touch ${ environment-variable "OBSERVED" }
-                                                                        '' ;
-                                                                } ;
+                                                            builtins.tryEval
+                                                                (
+                                                                    lib
+                                                                        {
+                                                                            name = "expected" ;
+                                                                            observed =
+                                                                                ''
+                                                                                    ${ pkgs.coreutils }/bin/touch ${ environment-variable "OBSERVED" }
+                                                                                '' ;
+                                                                        }
+                                                                ) ;
                                                         in
                                                             ''
                                                                 ${ pkgs.coreutils }/bin/touch $out &&
-                                                                    ${ pkgs.coreutils }/bin/echo ${ builtins.typeOf ( builtins.toString success ) }
+                                                                    ${ if success.success then "${ pkgs.coreutils }/bin/true" else "exit 1" }
                                                             '' ;
                                             } ;
                                     lib = lib ;
