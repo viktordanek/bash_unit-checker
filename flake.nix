@@ -57,13 +57,14 @@
                                                                             done
                                                                         }
                                                         '' ;
-                                                    in
+                                                    xxx =
                                                         ''
                                                             export OBSERVED=$out &&
                                                                 ${ pkgs.writeShellScript "observed" observed } &&
                                                                 export EXPECTED=${ self + "/" + name } &&
                                                                 ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
                                                         '' ;
+                                                    in "${ pkgs.coreutils }/bin/touch $out" ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
                             strip = builtins.getAttr system ( builtins.getAttr "lib" strip-lib ) ;
@@ -84,17 +85,14 @@
                                                             }
                                                     ) ;
                                             success =
-                                                builtins.tryEval
-                                                    (
-                                                        lib
-                                                            {
-                                                                name = "expected" ;
-                                                                observed =
-                                                                    ''
-                                                                        ${ pkgs.coreutils }/bin/echo a997a0f1b46ee3c281ef2f228915d00a09f3b2a084a8ea338eb35774b669acf7042768317c4fc456511f65df959a7826febf176a4b848d6bb1f53a764a7f2554 > ${ environment-variable "OBSERVED" }
-                                                                    '' ;
-                                                            }
-                                                    ) ;
+                                                lib
+                                                    {
+                                                        name = "expected" ;
+                                                        observed =
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/echo a997a0f1b46ee3c281ef2f228915d00a09f3b2a084a8ea338eb35774b669acf7042768317c4fc456511f65df959a7826febf176a4b848d6bb1f53a764a7f2554 > ${ environment-variable "OBSERVED" }
+                                                            '' ;
+                                                    } ;
                                             in
                                                 {
                                                     success =
@@ -102,7 +100,12 @@
                                                             "success"
                                                             { }
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/touch $out
+                                                                if [ ! -f ${ success } ]
+                                                                then
+                                                                    ${ pkgs.coreutils }/bin/echo There is no success derivation. >&2 &&
+                                                                        exit 1
+                                                                fi
+                                                                    ${ pkgs.coreutils }/bin/touch $out
                                                             '' ;
                                                 } ;
                                     lib = lib ;
