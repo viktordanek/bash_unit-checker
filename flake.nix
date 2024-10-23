@@ -103,12 +103,15 @@
                                                                 doCheck = true ;
                                                                 buildPhase =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/touch $out
+                                                                        ${ pkgs.coreutils }/bin/mkdir $out &&
+                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success
                                                                     '' ;
                                                                 checkPhase =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo '${ success }' &&
-                                                                            exit 0
+                                                                        if [ $( ${ pkgs.coreutils }/bin/cat ${ success } ) != a997a0f1b46ee3c281ef2f228915d00a09f3b2a084a8ea338eb35774b669acf7042768317c4fc456511f65df959a7826febf176a4b848d6bb1f53a764a7f2554 ]
+                                                                        then
+                                                                            exit 1
+                                                                        fi
                                                                     '' ;
                                                             } ;
                                                 } ;
