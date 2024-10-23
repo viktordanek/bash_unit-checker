@@ -4,9 +4,10 @@
             environment-variable-lib.url = "github:viktordanek/environment-variable" ;
             flake-utils.url = "github:numtide/flake-utils" ;
             nixpkgs.url = "github:NixOs/nixpkgs" ;
+            strip-lib.url = "github:viktordanek/strip" ;
         } ;
     outputs =
-        { environment-variable-lib , flake-utils , nixpkgs , self } :
+        { environment-variable-lib , flake-utils , nixpkgs , self , strip-lib } :
             let
                 fun =
                     system :
@@ -65,6 +66,7 @@
                                                     ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
                                             '' ;
                             pkgs = import nixpkgs { system = system ; } ;
+                            strip = builtins.getAttr system ( builtins.getAttr "lib" strip-lib ) ;
                             in
                                 {
                                     checks.testLib =
@@ -84,16 +86,22 @@
                                                                                 name = "expecteds/a" ;
                                                                                 observed = "${ pkgs.coreutils }/bin/touch ${ environment-variable "OBSERVED" }" ;
                                                                             } ;
-                                                                    message = "" ;
+                                                                    message = "CRAZE" ;
                                                                 }
                                                             ] ;
-                                                        test =
-                                                            ''
-                                                                test ( )
-                                                                    {
-                                                                        true
-                                                                    }
-                                                            '';
+                                                        generator =
+                                                            index :
+                                                                let
+                                                                    assertion = builtins.elemAt assertions index ;
+                                                                    in
+                                                                        strip
+                                                                            ''
+                                                                                test_${ builtins.toString ( 1001 + index ) } ( )
+                                                                                    {
+                                                                                        assert_equals "${ assertion.expected }" "${ assertion.expected }" ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
+                                                                                    }
+                                                                            '' ;
+                                                        test = builtins.concatStringsSep " &&\n" ( builtins.genList generator ( builtins.length assertions ) ) ;
                                                         in
                                                             ''
                                                                 ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > >( ${ pkgs.coreutils }/bin/tee $out )
