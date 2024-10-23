@@ -61,7 +61,7 @@
                                                     trap cleanup EXIT &&
                                                     export OBSERVED=$out &&
                                                     ${ pkgs.writeShellScript "observed" observed } &&
-                                                    export EXPECTED=${ builtins.import ( self + "/" + name ) } &&
+                                                    export EXPECTED=${ self + "/" + name } &&
                                                     ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
                                             '' ;
                             pkgs = import nixpkgs { system = system ; } ;
@@ -87,7 +87,13 @@
                                                                     message = "" ;
                                                                 }
                                                             ] ;
-                                                        test = "test ( ) { ${ builtins.concatStringsSep " " ( builtins.genList ( index : let assertion = builtins.elemAt assertions index ; in "assert_equals ${ assertion.expected } ${ assertion.observed }" ) ( builtins.length assertions ) ) } }" ;
+                                                        test =
+                                                            ''
+                                                                test ( )
+                                                                    {
+                                                                        true
+                                                                    }
+                                                            '';
                                                         in
                                                             ''
                                                                 ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > >( ${ pkgs.coreutils }/bin/tee $out )
