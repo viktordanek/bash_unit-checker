@@ -114,7 +114,7 @@
                                                                             ''
                                                                                 test_${ builtins.toString ( 1001 + index ) } ( )
                                                                                     {
-                                                                                        assert_equals ${ file ( replace ( strip assertion.expected ) ) } ${ file ( replace ( strip assertion.observed ) ) }
+                                                                                        assert_equals ${ file ( replace ( strip assertion.expected ) ) } ${ file ( replace ( strip assertion.observed ) ) } ${ if builtins.hasAttr "message" assertion then "\"${ assertion.message }\"" else "" }
                                                                                     }
                                                                             '' ;
                                                         replace =
