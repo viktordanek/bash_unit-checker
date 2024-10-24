@@ -78,65 +78,47 @@
                             in
                                 {
                                     checks =
-                                        # {
-                                            # test-lib =
-                                                let
-                                                    failure =
-                                                        lib
-                                                            {
-                                                                name = "expected" ;
-                                                                observed =
-                                                                    ''
-                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
-                                                                    '' ;
-                                                            } ;
-                                                    success =
-                                                        lib
-                                                            {
-                                                                name = "expected" ;
-                                                                observed =
-                                                                    ''
-                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
-                                                                    '' ;
-                                                            } ;
-  buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
-    if [ -f ${success.outPath} ]; then
-      touch $out;
-    else
-      exit 1 ;
-    fi
-  '';
-buildFailure = pkgs.runCommand "build-failure" {} ''
-  if builtins.tryEval failure.success; then
-    # If failure builds, we should fail (unexpected success)
-    exit 1;
-  else
-    # If failure does not build, touch the output
-    touch $out;
-  fi
-'';
+                                        let
+                                            failure =
+                                                lib
+                                                    {
+                                                        name = "expected" ;
+                                                        observed =
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
+                                                            '' ;
+                                                    } ;
+                                            success =
+                                                lib
+                                                    {
+                                                        name = "expected" ;
+                                                        observed =
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
+                                                            '' ;
+                                                    } ;
+                                              buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
+                                                if [ -f ${success.outPath} ]; then
+                                                  touch $out;
+                                                else
+                                                  exit 1 ;
+                                                fi
+                                              '';
+                                            buildFailure = pkgs.runCommand "build-failure" {} ''
+                                              if builtins.tryEval failure.success; then
+                                                # If failure builds, we should fail (unexpected success)
+                                                exit 1;
+                                              else
+                                                # If failure does not build, touch the output
+                                                touch $out;
+                                              fi
+                                            '';
 
-                                                    xxx =
-                                                        pkgs.stdenv.mkDerivation
-                                                            {
-                                                                name = "test-lib" ;
-                                                                src = ./. ;
-                                                                doCheck = true ;
-                                                                buildPhase =
-                                                                    ''
-                                                                        ${ pkgs.coreutils }/bin/mkdir $out &&
-                                                                            ${ pkgs.coreutils }/bin/ln --symbolic ${ success } $out/success
-                                                                    '' ;
-                                                                checkPhase =
-                                                                    ''
-                                                                            exit 2
-                                                                    '' ;
-                                                            } ;
-                                                    in
-                                                        {
-                                                            buildSuccess = buildSuccess ;
-                                                            buildFailure = buildFailure ;
-                                                        } ;
+                                            in
+                                                {
+                                                    buildSuccess = buildSuccess ;
+                                                    buildFailure = buildFailure ;
+                                                } ;
                                                 # } ;
                                     lib = lib ;
                                 } ;
