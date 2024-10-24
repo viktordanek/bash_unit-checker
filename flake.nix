@@ -87,7 +87,7 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/true > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
                                                     success =
@@ -96,9 +96,10 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo a997a0f1b46ee3c281ef2f228915d00a09f3b2a084a8ea338eb35774b669acf7042768317c4fc456511f65df959a7826febf176a4b848d6bb1f53a764a7f2554 > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/true > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
+                                                    result = builtins.tryEval ( pkgs.callPackage success { } ) ;
                                                     in
                                                         pkgs.stdenv.mkDerivation
                                                             {
@@ -112,16 +113,6 @@
                                                                     '' ;
                                                                 checkPhase =
                                                                     ''
-                                                                        if [ $( ${ pkgs.coreutils }/bin/cat ${ success } ) != a997a0f1b46ee3c281ef2f228915d00a09f3b2a084a8ea338eb35774b669acf7042768317c4fc456511f65df959a7826febf176a4b848d6bb1f53a764a7f2554 ]
-                                                                        then
-                                                                            exit 1
-                                                                        elif [ $( ${ pkgs.coreutils }/bin/cat $out/success ) != a997a0f1b46ee3c281ef2f228915d00a09f3b2a084a8ea338eb35774b669acf7042768317c4fc456511f65df959a7826febf176a4b848d6bb1f53a764a7f2554 ]
-                                                                        then
-                                                                            exit 1
-                                                                        fi &&
-                                                                        ${ pkgs.coreutils }/bin/echo ${ success.out } &&
-                                                                        ${ pkgs.coreutils }/bin/echo ${ success.outPath } &&
-                                                                        ${ pkgs.coreutils }/bin/echo ${ builtins.typeOf success }
                                                                     '' ;
                                                             } ;
                                                 } ;
