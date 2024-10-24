@@ -103,7 +103,7 @@
     if ${pkgs.nix}/bin/nix build --no-link ${success} > /dev/null 2>&1; then
       echo "Success: built" > $out;
     else
-      echo "Failure: failed to build" > $out;
+      echo "Failure: failed to build" > $out ;
     fi
   '';
     buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
@@ -133,6 +133,7 @@
                                                     in
                                                         {
                                                             buildSuccess = buildSuccess ;
+                                                            # buildFailure = buildFailure ;
                                                         } ;
                                                 # } ;
                                     lib = lib ;
