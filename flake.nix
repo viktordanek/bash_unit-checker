@@ -100,10 +100,10 @@
                                                                     '' ;
                                                             } ;
   buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
-    if ${pkgs.nix}/bin/nix build --no-link ${success} > /dev/null 2>&1; then
-      echo "Success: built" > $out;
+    if ${pkgs.nix}/bin/nix build --no-link ${success} ; then
+      touch $out;
     else
-      echo "Failure: failed to build" > $out ;
+      touch $out ;
     fi
   '';
     buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
