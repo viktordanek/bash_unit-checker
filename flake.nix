@@ -109,6 +109,8 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
     # THE REASON THIS DOES NOT WORK AND IT PREVIOUSLY "WORKED" WAS BECAUSE OF THE TRAILING SLASH /
     # -e ${failure}/ looks for a directory named failure and it is not there
     # -e ${failure} looks for any file named failure and it is there
+    # When buildFailure is run and doChecks = true, the checks are run in the checkPhase and they fail and rather than ${failure} simply not existing, the whole thing blows up.
+    # I believe that the tested subject is behaving correctly but I am unable to capture this in an automated test.
     echo Failure did build, which is unexpected, so we fail the build
     exit 1;
   fi
