@@ -109,6 +109,9 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
     # Failure did not build (this is expected, so we touch $out)
     touch $out;
   else
+    # THE REASON THIS DOES NOT WORK AND IT PREVIOUSLY "WORKED" WAS BECAUSE OF THE TRAILING SLASH /
+    # -e ${failure}/ looks for a directory named failure and it is not there
+    # -e ${failure} looks for any file named failure and it is there
     echo Failure did build, which is unexpected, so we fail the build
     exit 1;
   fi
