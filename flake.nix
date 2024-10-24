@@ -107,6 +107,14 @@
       echo "Success: failed to build" > $out/result;
     fi
   '';
+    buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
+        ${ pkgs.coreutils }/bin/mkdir $out &&
+      if ${pkgs.nix}/bin/nix build --no-link ${failure} > /dev/null 2>&1; then
+        echo "Failure: built (unexpected)" > $out/result;
+      else
+        echo "Failure: failed to build (as expected)" > $out/result;
+      fi
+    '';
                                                     xxx =
                                                         pkgs.stdenv.mkDerivation
                                                             {
@@ -126,6 +134,7 @@
                                                     in
                                                         {
                                                             buildSuccess = buildSuccess ;
+                                                            buildFailure = buildFailure ;
                                                         } ;
                                                 # } ;
                                     lib = lib ;
