@@ -108,11 +108,10 @@
   '';
     buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
       if ${pkgs.nix}/bin/nix build --no-link ${failure} > /dev/null 2>&1; then
-        echo "Failure: built (unexpected)" ;
+        echo "Failure: built (unexpected)" > $out ;
       else
         echo "Success: failed to build (as expected)" > $out;
-      fi &&
-      exit 3
+      fi
     '';
                                                     xxx =
                                                         pkgs.stdenv.mkDerivation
