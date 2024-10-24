@@ -16,7 +16,8 @@
                             lib =
                                 {
                                     derivation ,
-                                    name ? "expected" ,
+                                    expected-name ? "expected" ,
+                                    expected-path ,
                                     observed
                                 } :
                                     pkgs.stdenv.mkDerivation
@@ -33,9 +34,9 @@
                                                         '' ;
                                                     re-expect =
                                                         ''
-                                                            ${ pkgs.git }/bin/git --remove --force ${ name } &&
-                                                                ${ pkgs.coreutils }/bin/cp ${ environment-variable "OUT" }/observed ${ name } &&
-                                                                ${ pkgs.git }/bin/git add ${ name }
+                                                            ${ pkgs.git }/bin/git --remove --force ${ expected-name } &&
+                                                                ${ pkgs.coreutils }/bin/cp ${ environment-variable "OUT" }/observed ${ expected-name } &&
+                                                                ${ pkgs.git }/bin/git add ${ expected-name }
                                                         '' ;
                                                     test =
                                                         ''
@@ -71,7 +72,7 @@
                                                             ${ pkgs.coreutils }/bin/mkdir $out &&
                                                                 export OBSERVED=$out/observed &&
                                                                 ${ pkgs.writeShellScript "observed" ( observed derivation ) } &&
-                                                                export EXPECTED=${ self + "/" + name } &&
+                                                                export EXPECTED=${ expected-path } &&
                                                                 if ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > $out/result
                                                                 then
                                                                     ${ pkgs.coreutils }/bin/echo ${ environment-variable "?" } > $out/status
@@ -93,7 +94,7 @@
                                                 lib
                                                     {
                                                         derivation = null ;
-                                                        name = "expected" ;
+                                                        expected-path = ./expected ;
                                                         observed =
                                                             derivation :
                                                                 ''
@@ -104,7 +105,7 @@
                                                 lib
                                                     {
                                                         derivation = null ;
-                                                        name = "expected" ;
+                                                        expected-path = ./expected ;
                                                         observed =
                                                             derivation :
                                                                 ''
