@@ -90,7 +90,7 @@
                                                  checkPhase = ''
                                                    ${ pkgs.coreutils }/bin/echo "Searching /nix/store for: '${valueToCheck}'"
 
-                                                   if ${ pkgs.findutils }/bin/find /nix/store/ -type f -exec ${ pkgs.gnugrep }/bin/grep --with-filename "^${valueToCheck}\$" {} \; ; then
+                                                   if ${ pkgs.findutils }/bin/find /nix/store/ -mindepth 1 -maxdepth 1 -type f -exec ${ pkgs.gnugrep }/bin/grep --with-filename "^${valueToCheck}\$" {} \; ; then
                                                      ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' found in /nix/store."
 
                                                      if [ "${status}" = "passIfFound" ]; then
