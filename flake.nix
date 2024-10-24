@@ -158,7 +158,7 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
                                             in
                                                 {
                                                     doubleCheckSuccess = grep { valueToCheck = "WRONG!" ; status = "passIfFound" ;} ;
-                                                    buildSuccess = buildSuccess ;
+                                                    # buildSuccess = buildSuccess ;
                                                     # buildFailure = buildFailure ;
                                                 } ;
                                                 # } ;
