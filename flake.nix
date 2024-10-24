@@ -30,6 +30,12 @@
                                                             ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/result &&
                                                                 exit $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/status )
                                                         '' ;
+                                                    re-expect =
+                                                        ''
+                                                            ${ pkgs.git }/bin/git --remove --force ${ name } &&
+                                                                ${ pkgs.coreutils }/bin/cp ${ environment-variable "OUT" }/observed ${ name } &&
+                                                                ${ pkgs.git }/bin/git add ${ name }
+                                                        '' ;
                                                     test =
                                                         ''
                                                             test_diff ( )
@@ -76,7 +82,8 @@
                                                                     ${ pkgs.coreutils }/bin/echo ${ environment-variable "?" } > $out/status
                                                                 fi &&
                                                                 ${ pkgs.coreutils }/bin/mkdir $out/bin &&
-                                                                makeWrapper ${ pkgs.writeShellScript "bash_unit" bash_unit } $out/bin/bash_unit --set OUT $out
+                                                                makeWrapper ${ pkgs.writeShellScript "bash_unit" bash_unit } $out/bin/bash_unit --set OUT $out &&
+                                                                makeWrapper ${ pkgs.writeShellScript "re-expect" re-expect } $out/bin/re-expect --set OUT $out
                                                         '' ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
@@ -113,14 +120,15 @@
                                                                 then
                                                                     ${ pkgs.coreutils }/bin/touch $out
                                                                 else
-                                                                    ${ pkgs.coreutils }/bin/echo EXPECTED STATUS=${ builtins.toString status } OBSERVED_STATUS=$( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status ) &&
+                                                                    ${ pkgs.gnused }/bin/sed -e "s#OUT#${ builtins.toString derivation }#" ${ builtins.toString derivation }/bin/re-expect &&
+                                                                        ${ pkgs.coreutils }/bin/echo EXPECTED STATUS=${ builtins.toString status } OBSERVED_STATUS=$( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status ) &&
                                                                         exit 1
                                                                 fi
                                                             '' ;
                                             in
                                                 {
                                                     success = test success 0 ;
-                                                    # failure = test failure 0 ;
+                                                    failure = test failure 1 ;
                                                 } ;
                                     lib = lib ;
                                 } ;
