@@ -22,20 +22,20 @@
                                         {
                                             name = "bash-unit-checker" ;
                                             src = ./. ;
-                                            doCheck = true ;
+                                            buildInputs = [ pkgs.makeWrapper ] ;
                                             buildPhase =
-                                                ''
-                                                    export OBSERVED=$out &&
-                                                        ${ pkgs.writeShellScript "observed" observed }
-                                                '' ;
-                                            checkPhase =
                                                 let
+                                                    bash-unit =
+                                                        ''
+                                                            ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/result &&
+                                                                exit $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/status )
+                                                        '' ;
                                                     test =
                                                         ''
                                                             test_diff ( )
                                                                 {
                                                                     assert_equals "" "$( ${ pkgs.diffutils }/bin/diff --brief --recursive ${ environment-variable "EXPECTED" } ${ environment-variable "OBSERVED" } )" "We expect expected to exactly equal observed."
-                                                                 } &&
+                                                                } &&
                                                                     test_expected_observed ( )
                                                                         {
                                                                             ${ pkgs.findutils }/bin/find ${ environment-variable "EXPECTED" } -type f | while read EXPECTED_FILE
@@ -65,9 +65,18 @@
                                                         '' ;
                                                     in
                                                         ''
-                                                            export OBSERVED=$out &&
+                                                            ${ pkgs.coreutils }/bin/mkdir $out &&
+                                                                export OBSERVED=$out/observed &&
+                                                                ${ pkgs.writeShellScript "observed" observed }
                                                                 export EXPECTED=${ self + "/" + name } &&
-                                                                ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test }
+                                                                if ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > $out/result
+                                                                then
+                                                                    ${ pkgs.coreutils }/bin/echo ${ environment-variable "?" } > $out/status
+                                                                else
+                                                                    ${ pkgs.coreutils }/bin/echo ${ environment-variable "?" } > $out/status
+                                                                fi &&
+                                                                ${ pkgs.coreutils }/bin/mkdir $out/bin &&
+                                                                makeWrapper $out/bin/bash-unit ${ pkgs.writeShellScript "bash-unit" bash-unit } --set OUT $out
                                                         '' ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
@@ -76,51 +85,13 @@
                                 {
                                     checks =
                                         let
-                                        grep =
-
-                                               { valueToCheck, status }:
-                                               pkgs.stdenv.mkDerivation {
-                                                 name = "nix-store-check";
-                                                    src = ./. ;
-                                                 buildInputs = [ pkgs.gnugrep ];
-                                                 buildPhase = "${ pkgs.coreutils }/bin/mkdir $out" ;
-
-                                                 doCheck = true;
-
-                                                 checkPhase = ''
-                                                   ${ pkgs.coreutils }/bin/echo "Searching /nix/store for: '${valueToCheck}'"
-                                                    WTF=$( ${ pkgs.findutils }/bin/find /nix/store/ -mindepth 1 -maxdepth 1 -type f -name "*-bash-unit-checker" -exec ${ pkgs.gnugrep }/bin/grep --with-filename "${valueToCheck}" {} \; ) &&
-                                                   if [ ! -z "${ environment-variable "WTF" }" ] ; then
-                                                     ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' found in /nix/store:  ${ environment-variable "WTF" }."
-
-                                                     if [ "${status}" = "passIfFound" ]; then
-                                                       ${ pkgs.coreutils }/bin/echo "Check passed."
-                                                       exit 0
-                                                     else
-                                                       ${ pkgs.coreutils }/bin/echo "Check failed."
-                                                       exit 1
-                                                     fi
-
-                                                   else
-                                                     ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' NOT found in /nix/store."
-
-                                                     if [ "${status}" = "passIfFound" ]; then
-                                                       ${ pkgs.coreutils }/bin/echo "Check failed."
-                                                       exit 1
-                                                     else
-                                                       ${ pkgs.coreutils }/bin/echo "Check passed."
-                                                       exit 0
-                                                     fi
-                                                   fi
-                                                 '';
-                                               } ;
                                             failure =
                                                 lib
                                                     {
                                                         name = "expected" ;
                                                         observed =
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
+                                                                ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
                                                             '' ;
                                                     } ;
                                             success =
@@ -129,40 +100,27 @@
                                                         name = "expected" ;
                                                         observed =
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
+                                                                ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
                                                             '' ;
                                                     } ;
-                                              buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
-                                                if [ -f ${success.outPath} ]; then
-                                                  touch $out;
-                                                else
-                                                  exit 1 ;
-                                                fi
-                                              '';
-buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
-  if [ ! -e ${failure} ]; then
-    # Failure did not build (this is expected, so we touch $out)
-    touch $out;
-  else
-    # THE REASON THIS DOES NOT WORK AND IT PREVIOUSLY "WORKED" WAS BECAUSE OF THE TRAILING SLASH /
-    # -e ${failure}/ looks for a directory named failure and it is not there
-    # -e ${failure} looks for any file named failure and it is there
-    # When buildFailure is run and doChecks = true, the checks are run in the checkPhase and they fail and rather than ${failure} simply not existing, the whole thing blows up.
-    # I believe that the tested subject is behaving correctly but I am unable to capture this in an automated test.
-    echo Failure did build, which is unexpected, so we fail the build
-    exit 1;
-  fi
-'';
-
-
+                                                test =
+                                                    derivation : status :
+                                                        pkgs.runCommand
+                                                            "test"
+                                                            { buildInputs = [ derivation ] ; }
+                                                            ''
+                                                                if [ ${ builtins.toString derivation }/status == ${ builtins.toString status } ]
+                                                                then
+                                                                    ${ pkgs.coreutils }/bin/touch $out
+                                                                else
+                                                                    ${ pkgs.coreutils }/bin/echo STATUS: $( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status )
+                                                                fi
+                                                            '' ;
                                             in
                                                 {
-                                                    doubleCheckSuccess = grep { valueToCheck = "bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9" ; status = "passIfFound" ;} ;
-                                                    doubleCheckFailure = grep { valueToCheck = "/nix/store/ph44jcx3ddmlwh394mh1wb7f1qigxqb1-coreutils-9.5/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555" ; status = "failIfFound" ;} ;
-                                                    buildSuccess = buildSuccess ;
-                                                    # buildFailure = buildFailure ;
+                                                    # success = test success 0 ;
+                                                    # failure = test failure 0 ;
                                                 } ;
-                                                # } ;
                                     lib = lib ;
                                 } ;
                 in flake-utils.lib.eachDefaultSystem fun ;
