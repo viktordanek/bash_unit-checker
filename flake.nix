@@ -100,20 +100,22 @@
                                                                     '' ;
                                                             } ;
   buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
-    if [ -e ${success.outPath} ]; then
+    if [ -f ${success.outPath} ]; then
       touch $out;
     else
-        echo failure ${success.out} &&
       exit 1 ;
     fi
   '';
-    buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
-      if ${pkgs.nix}/bin/nix build --no-link ${failure} > /dev/null 2>&1; then
-        echo "Failure: built (unexpected)" > $out ;
-      else
-        echo "Success: failed to build (as expected)" > $out;
-      fi
-    '';
+buildFailure = pkgs.runCommand "build-failure" {} ''
+  if builtins.tryEval failure.success; then
+    # If failure builds, we should fail (unexpected success)
+    exit 1;
+  else
+    # If failure does not build, touch the output
+    touch $out;
+  fi
+'';
+
                                                     xxx =
                                                         pkgs.stdenv.mkDerivation
                                                             {
@@ -133,7 +135,7 @@
                                                     in
                                                         {
                                                             buildSuccess = buildSuccess ;
-                                                            # buildFailure = buildFailure ;
+                                                            buildFailure = buildFailure ;
                                                         } ;
                                                 # } ;
                                     lib = lib ;
