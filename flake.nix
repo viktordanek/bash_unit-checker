@@ -89,9 +89,9 @@
 
                                                  checkPhase = ''
                                                    ${ pkgs.coreutils }/bin/echo "Searching /nix/store for: '${valueToCheck}'"
-
-                                                   if ${ pkgs.findutils }/bin/find /nix/store/ -mindepth 1 -maxdepth 1 -type f -name "*-bash-unit-checker" -exec ${ pkgs.gnugrep }/bin/grep --with-filename "^${valueToCheck}\$" {} \; ; then
-                                                     ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' found in /nix/store."
+                                                    WTF=$( ${ pkgs.findutils }/bin/find /nix/store/ -mindepth 1 -maxdepth 1 -type f -name "*-bash-unit-checker" -exec ${ pkgs.gnugrep }/bin/grep --with-filename "^${valueToCheck}\$" {} \; ) &&
+                                                   if [ ! -z "${ environment-variable "WTF" }" ] ; then
+                                                     ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' found in /nix/store:  ${ environment-variable "WTF" }."
 
                                                      if [ "${status}" = "passIfFound" ]; then
                                                        ${ pkgs.coreutils }/bin/echo "Check passed."
@@ -157,8 +157,8 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
 
                                             in
                                                 {
-                                                    doubleCheckSuccess = grep { valueToCheck = "/nix/store/ph44jcx3ddmlwh394mh1wb7f1qigxqb1-coreutils-9.5/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9" ; status = "passIfFound" ;} ;
-                                                    # doubleCheckFailure = grep { valueToCheck = "/nix/store/ph44jcx3ddmlwh394mh1wb7f1qigxqb1-coreutils-9.5/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555" ; status = "failIfFound" ;} ;
+                                                    # doubleCheckSuccess = grep { valueToCheck = "/nix/store/ph44jcx3ddmlwh394mh1wb7f1qigxqb1-coreutils-9.5/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9" ; status = "passIfFound" ;} ;
+                                                    doubleCheckFailure = grep { valueToCheck = "/nix/store/ph44jcx3ddmlwh394mh1wb7f1qigxqb1-coreutils-9.5/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555" ; status = "failIfFound" ;} ;
                                                     buildSuccess = buildSuccess ;
                                                     # buildFailure = buildFailure ;
                                                 } ;
