@@ -87,7 +87,7 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
                                                     success =
