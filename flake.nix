@@ -101,7 +101,7 @@
                                                             } ;
   buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
     if ${pkgs.nix}/bin/nix build --no-link ${success} ; then
-      touch $out;
+      true touch $out;
     else
       touch $out ;
     fi
