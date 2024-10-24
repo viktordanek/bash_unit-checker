@@ -20,12 +20,12 @@
                                 } :
                                     pkgs.stdenv.mkDerivation
                                         {
-                                            name = "bash-unit-checker" ;
+                                            name = "bash_unit" ;
                                             src = ./. ;
                                             buildInputs = [ pkgs.makeWrapper ] ;
                                             buildPhase =
                                                 let
-                                                    bash-unit =
+                                                    bash_unit =
                                                         ''
                                                             ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/result &&
                                                                 exit $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/status )
@@ -76,7 +76,7 @@
                                                                     ${ pkgs.coreutils }/bin/echo ${ environment-variable "?" } > $out/status
                                                                 fi &&
                                                                 ${ pkgs.coreutils }/bin/mkdir $out/bin &&
-                                                                makeWrapper $out/bin/bash-unit ${ pkgs.writeShellScript "bash-unit" bash-unit } --set OUT $out
+                                                                makeWrapper ${ pkgs.writeShellScript "bash_unit" bash_unit } $out/bin/bash_unit --set OUT $out
                                                         '' ;
                                     } ;
                             pkgs = import nixpkgs { system = system ; } ;
@@ -106,19 +106,19 @@
                                                 test =
                                                     derivation : status :
                                                         pkgs.runCommand
-                                                            "test"
+                                                            "bash_unit"
                                                             { buildInputs = [ derivation ] ; }
                                                             ''
                                                                 if [ ${ builtins.toString derivation }/status == ${ builtins.toString status } ]
                                                                 then
                                                                     ${ pkgs.coreutils }/bin/touch $out
                                                                 else
-                                                                    ${ pkgs.coreutils }/bin/echo STATUS: $( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status )
+                                                                    ${ pkgs.coreutils }/bin/echo STATUS: $( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status ) > $out
                                                                 fi
                                                             '' ;
                                             in
                                                 {
-                                                    # success = test success 0 ;
+                                                    success = test success 0 ;
                                                     # failure = test failure 0 ;
                                                 } ;
                                     lib = lib ;
