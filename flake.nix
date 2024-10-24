@@ -78,8 +78,8 @@
                             in
                                 {
                                     checks =
-                                        {
-                                            test-lib =
+                                        # {
+                                            # test-lib =
                                                 let
                                                     failure =
                                                         lib
@@ -87,7 +87,7 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/true > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo true > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
                                                     success =
@@ -96,11 +96,18 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/true > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo true > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
-                                                    result = builtins.tryEval ( pkgs.callPackage success { } ) ;
-                                                    in
+  buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
+    ${ pkgs.coreutils }/bin/mkdir $out &&
+    if ${pkgs.nix}/bin/nix build --no-link ${success} > /dev/null 2>&1; then
+      echo "Success: built" > $out/result;
+    else
+      echo "Success: failed to build" > $out/result;
+    fi
+  '';
+                                                    xxx =
                                                         pkgs.stdenv.mkDerivation
                                                             {
                                                                 name = "test-lib" ;
@@ -113,9 +120,14 @@
                                                                     '' ;
                                                                 checkPhase =
                                                                     ''
+                                                                            exit 2
                                                                     '' ;
                                                             } ;
-                                                } ;
+                                                    in
+                                                        {
+                                                            buildSuccess = buildSuccess ;
+                                                        } ;
+                                                # } ;
                                     lib = lib ;
                                 } ;
                 in flake-utils.lib.eachDefaultSystem fun ;
