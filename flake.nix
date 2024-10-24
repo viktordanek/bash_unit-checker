@@ -104,15 +104,16 @@
                                                   exit 1 ;
                                                 fi
                                               '';
-                                            buildFailure = pkgs.runCommand "build-failure" {} ''
-                                              if builtins.tryEval failure.success; then
-                                                # If failure builds, we should fail (unexpected success)
-                                                exit 1;
-                                              else
-                                                # If failure does not build, touch the output
-                                                touch $out;
-                                              fi
-                                            '';
+buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
+  if [ ! -e ${failure}/ ]; then
+    # Failure did not build (this is expected, so we touch $out)
+    touch $out;
+  else
+    # Failure did build, which is unexpected, so we fail the build
+    exit 1;
+  fi
+'';
+
 
                                             in
                                                 {
