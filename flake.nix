@@ -109,11 +109,12 @@
                                                             "bash_unit"
                                                             { buildInputs = [ derivation ] ; }
                                                             ''
-                                                                if [ ${ builtins.toString derivation }/status == ${ builtins.toString status } ]
+                                                                if [ $( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status ) == ${ builtins.toString status } ]
                                                                 then
                                                                     ${ pkgs.coreutils }/bin/touch $out
                                                                 else
-                                                                    ${ pkgs.coreutils }/bin/echo STATUS: $( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status ) > $out
+                                                                    ${ pkgs.coreutils }/bin/echo EXPECTED STATUS=${ builtins.toString status } OBSERVED_STATUS=$( ${ pkgs.coreutils }/bin/cat ${ builtins.toString derivation }/status ) &&
+                                                                        exit 1
                                                                 fi
                                                             '' ;
                                             in
