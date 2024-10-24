@@ -81,33 +81,34 @@
                                                { valueToCheck, status }:
                                                pkgs.stdenv.mkDerivation {
                                                  name = "nix-store-check";
-
-                                                 buildInputs = [ pkgs.grep ];
+                                                    src = ./. ;
+                                                 buildInputs = [ pkgs.gnugrep ];
+                                                 buildPhase = "${ pkgs.coreutils }/bin/mkdir $out" ;
 
                                                  doCheck = true;
 
                                                  checkPhase = ''
-                                                   echo "Searching /nix/store for: '${valueToCheck}'"
+                                                   ${ pkgs.coreutils }/bin/echo "Searching /nix/store for: '${valueToCheck}'"
 
-                                                   if grep -rFq -- "${valueToCheck}" /nix/store; then
-                                                     echo "Value '${valueToCheck}' found in /nix/store."
+                                                   if ${ pkgs.gnugrep }/bin/grep -rFq -- "${valueToCheck}" /nix/store; then
+                                                     ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' found in /nix/store."
 
                                                      if [ "${status}" = "passIfFound" ]; then
-                                                       echo "Check passed."
+                                                       ${ pkgs.coreutils }/bin/echo "Check passed."
                                                        exit 0
                                                      else
-                                                       echo "Check failed."
+                                                       ${ pkgs.coreutils }/bin/echo "Check failed."
                                                        exit 1
                                                      fi
 
                                                    else
-                                                     echo "Value '${valueToCheck}' NOT found in /nix/store."
+                                                     ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' NOT found in /nix/store."
 
                                                      if [ "${status}" = "passIfFound" ]; then
-                                                       echo "Check failed."
+                                                       ${ pkgs.coreutils }/bin/echo "Check failed."
                                                        exit 1
                                                      else
-                                                       echo "Check passed."
+                                                       ${ pkgs.coreutils }/bin/echo "Check passed."
                                                        exit 0
                                                      fi
                                                    fi
@@ -156,6 +157,7 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
 
                                             in
                                                 {
+                                                    doubleCheckSuccess = grep { valueToCheck = "WRONG!" ; status = "passIfFound" ;} ;
                                                     buildSuccess = buildSuccess ;
                                                     # buildFailure = buildFailure ;
                                                 } ;
