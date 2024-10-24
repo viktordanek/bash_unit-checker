@@ -76,6 +76,43 @@
                                 {
                                     checks =
                                         let
+                                        grep =
+
+                                               { valueToCheck, status }:
+                                               pkgs.stdenv.mkDerivation {
+                                                 name = "nix-store-check";
+
+                                                 buildInputs = [ pkgs.grep ];
+
+                                                 doCheck = true;
+
+                                                 checkPhase = ''
+                                                   echo "Searching /nix/store for: '${valueToCheck}'"
+
+                                                   if grep -rFq -- "${valueToCheck}" /nix/store; then
+                                                     echo "Value '${valueToCheck}' found in /nix/store."
+
+                                                     if [ "${status}" = "passIfFound" ]; then
+                                                       echo "Check passed."
+                                                       exit 0
+                                                     else
+                                                       echo "Check failed."
+                                                       exit 1
+                                                     fi
+
+                                                   else
+                                                     echo "Value '${valueToCheck}' NOT found in /nix/store."
+
+                                                     if [ "${status}" = "passIfFound" ]; then
+                                                       echo "Check failed."
+                                                       exit 1
+                                                     else
+                                                       echo "Check passed."
+                                                       exit 0
+                                                     fi
+                                                   fi
+                                                 '';
+                                               } ;
                                             failure =
                                                 lib
                                                     {
