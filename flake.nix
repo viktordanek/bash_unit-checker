@@ -22,14 +22,11 @@
                                         {
                                             name = "bash-unit-checker" ;
                                             src = ./. ;
+                                            doCheck = true ;
                                             buildPhase =
                                                 ''
                                                     export OBSERVED=$out &&
-                                                        ${ pkgs.writeShellScript "observed" observed } &&
-                                                        if [ $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OBSERVED" } ) == 5d86ec0df0120f534f2c407ac315c362d0cf2619dd0c629240519a8e3915eca04d1ae21783d9ca8560f467fee1745d1ef9e55343723fb48423a4998267e4996c ]
-                                                        then
-                                                            exit 1
-                                                        fi
+                                                        ${ pkgs.writeShellScript "observed" observed }
                                                 '' ;
                                             checkPhase =
                                                 let
