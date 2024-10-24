@@ -90,7 +90,7 @@
                                                  checkPhase = ''
                                                    ${ pkgs.coreutils }/bin/echo "Searching /nix/store for: '${valueToCheck}'"
 
-                                                   if ${ pkgs.gnugrep }/bin/grep -rFq -- "${valueToCheck}" /nix/store; then
+                                                   if ${ pkgs.findutils }/bin/find /nix/store/ -type f -exec ${ pkgs.gnugrep }/bin/grep --with-filename "^${valueToCheck}\$" {} \; ; then
                                                      ${ pkgs.coreutils }/bin/echo "Value '${valueToCheck}' found in /nix/store."
 
                                                      if [ "${status}" = "passIfFound" ]; then
@@ -158,7 +158,7 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
                                             in
                                                 {
                                                     doubleCheckSuccess = grep { valueToCheck = "/nix/store/ph44jcx3ddmlwh394mh1wb7f1qigxqb1-coreutils-9.5/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9" ; status = "passIfFound" ;} ;
-                                                    # buildSuccess = buildSuccess ;
+                                                    buildSuccess = buildSuccess ;
                                                     # buildFailure = buildFailure ;
                                                 } ;
                                                 # } ;
