@@ -96,7 +96,7 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo true > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
   buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
