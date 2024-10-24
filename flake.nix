@@ -87,7 +87,7 @@
                                                                 name = "expected" ;
                                                                 observed =
                                                                     ''
-                                                                        ${ pkgs.coreutils }/bin/echo true > ${ environment-variable "OBSERVED" }
+                                                                        ${ pkgs.coreutils }/bin/echo false > ${ environment-variable "OBSERVED" }
                                                                     '' ;
                                                             } ;
                                                     success =
@@ -100,20 +100,19 @@
                                                                     '' ;
                                                             } ;
   buildSuccess = pkgs.runCommand "build-success" { buildInputs = [ success ]; } ''
-    ${ pkgs.coreutils }/bin/mkdir $out &&
     if ${pkgs.nix}/bin/nix build --no-link ${success} > /dev/null 2>&1; then
-      echo "Success: built" > $out/result;
+      echo "Success: built" > $out;
     else
-      echo "Success: failed to build" > $out/result;
+      echo "Failure: failed to build" > $out;
     fi
   '';
     buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
-        ${ pkgs.coreutils }/bin/mkdir $out &&
       if ${pkgs.nix}/bin/nix build --no-link ${failure} > /dev/null 2>&1; then
-        echo "Failure: built (unexpected)" > $out/result;
+        echo "Failure: built (unexpected)" ;
       else
-        echo "Failure: failed to build (as expected)" > $out/result;
-      fi
+        echo "Success: failed to build (as expected)" > $out;
+      fi &&
+      exit 3
     '';
                                                     xxx =
                                                         pkgs.stdenv.mkDerivation
@@ -134,7 +133,6 @@
                                                     in
                                                         {
                                                             buildSuccess = buildSuccess ;
-                                                            buildFailure = buildFailure ;
                                                         } ;
                                                 # } ;
                                     lib = lib ;
