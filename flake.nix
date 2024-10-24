@@ -105,11 +105,11 @@
                                                 fi
                                               '';
 buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
-  if [ ! -e ${failure}/ ]; then
+  if [ ! -e ${failure} ]; then
     # Failure did not build (this is expected, so we touch $out)
     touch $out;
   else
-    # Failure did build, which is unexpected, so we fail the build
+    echo Failure did build, which is unexpected, so we fail the build
     exit 1;
   fi
 '';
@@ -118,7 +118,7 @@ buildFailure = pkgs.runCommand "build-failure" { buildInputs = [ failure ]; } ''
                                             in
                                                 {
                                                     buildSuccess = buildSuccess ;
-                                                    buildFailure = buildFailure ;
+                                                    # buildFailure = buildFailure ;
                                                 } ;
                                                 # } ;
                                     lib = lib ;
