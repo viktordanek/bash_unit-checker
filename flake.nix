@@ -34,9 +34,7 @@
                                                         '' ;
                                                     re-expect =
                                                         ''
-                                                            ${ pkgs.git }/bin/git --remove --force ${ expected-name } &&
-                                                                ${ pkgs.coreutils }/bin/cp ${ environment-variable "OUT" }/observed ${ expected-name } &&
-                                                                ${ pkgs.git }/bin/git add ${ expected-name }
+                                                            ${ pkgs.git }/bin/git rm -rf ${ expected-name } && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OUT" }/observed ${ expected-name } && ${ pkgs.git }/bin/git add ${ expected-name }
                                                         '' ;
                                                     test =
                                                         ''
