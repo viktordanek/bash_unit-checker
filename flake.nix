@@ -15,7 +15,6 @@
                             environment-variable = builtins.getAttr system ( builtins.getAttr "lib" environment-variable-lib ) ;
                             lib =
                                 {
-                                    derivation ,
                                     expected-name ? "expected" ,
                                     expected-path ,
                                     observed
@@ -71,7 +70,7 @@
                                                         ''
                                                             ${ pkgs.coreutils }/bin/mkdir $out &&
                                                                 export OBSERVED=$out/observed &&
-                                                                ${ pkgs.writeShellScript "observed" ( observed derivation ) } &&
+                                                                ${ pkgs.writeShellScript "observed" observed } &&
                                                                 export EXPECTED=${ expected-path } &&
                                                                 if ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > $out/result
                                                                 then
@@ -93,24 +92,20 @@
                                             failure =
                                                 lib
                                                     {
-                                                        derivation = null ;
                                                         expected-path = ./expected ;
                                                         observed =
-                                                            derivation :
-                                                                ''
-                                                                    ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
-                                                                '' ;
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
+                                                            '' ;
                                                     } ;
                                             success =
                                                 lib
                                                     {
-                                                        derivation = null ;
                                                         expected-path = ./expected ;
                                                         observed =
-                                                            derivation :
-                                                                ''
-                                                                    ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
-                                                                '' ;
+                                                            ''
+                                                                ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
+                                                            '' ;
                                                     } ;
                                                 test =
                                                     derivation : status :
