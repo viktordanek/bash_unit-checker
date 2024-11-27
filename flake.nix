@@ -93,7 +93,7 @@
                                     checks =
                                         let
                                             failure =
-                                                lib
+                                                self.lib
                                                     {
                                                         expected-path = ./expected ;
                                                         observed =
