@@ -29,7 +29,7 @@
                                                     bash_unit =
                                                         ''
                                                             ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/result &&
-                                                                ${ pkgs.gnused }/bin/sed -e "s#\${ environment-variable "OUT" }#${ environment-variable "OUT" }#" ${ environment-variable "OUT" }/bin/re-expect
+                                                                ${ pkgs.gnused }/bin/sed -e "s#\${ environment-variable "OUT" }#${ environment-variable "OUT" }#" ${ environment-variable "OUT" }/bin/re-expect &&
                                                                 exit $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/status )
                                                         '' ;
                                                     re-expect =
@@ -38,19 +38,23 @@
                                                         '' ;
                                                     test =
                                                         ''
-                                                            test_expected_observed ( )
+                                                            test_diff ( )
                                                                 {
-                                                                    ${ pkgs.findutils }/bin/find ${ environment-variable "EXPECTED" } -type f | while read EXPECTED_FILE
-                                                                    do
-                                                                        RELATIVE=$( ${ pkgs.coreutils }/bin/echo ${ environment-variable "EXPECTED_FILE" } | ${ pkgs.gnused }/bin/sed -e "s#^${ environment-variable "EXPECTED" }##" ) &&
-                                                                            OBSERVED_FILE=${ environment-variable "OBSERVED" }${ environment-variable "RELATIVE" } &&
-                                                                            if [ ! -f ${ environment-variable "OBSERVED_FILE" } ]
-                                                                            then
-                                                                                fail "The observed file for ${ environment-variable "RELATIVE" } does not exist."
-                                                                            fi &&
-                                                                            assert_equals "$( ${ pkgs.coreutils }/bin/cat ${ environment-variable "EXPECTED_FILE" } )" "$( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OBSERVED_FILE" } )" "The expected file does not equal the observed file for ${ environment-variable "RELATIVE" }."
-                                                                    done
+                                                                    assert_equals "" "$( ${ pkgs.coreutils }/bin/diff --brief --recursive ${ environment-variable "EXPECTED" } ${ environment-variable "OBSERVED" } )" "The expected should be exactly equal to the observed."
                                                                 } &&
+                                                                test_expected_observed ( )
+                                                                    {
+                                                                        ${ pkgs.findutils }/bin/find ${ environment-variable "EXPECTED" } -type f | while read EXPECTED_FILE
+                                                                        do
+                                                                            RELATIVE=$( ${ pkgs.coreutils }/bin/echo ${ environment-variable "EXPECTED_FILE" } | ${ pkgs.gnused }/bin/sed -e "s#^${ environment-variable "EXPECTED" }##" ) &&
+                                                                                OBSERVED_FILE=${ environment-variable "OBSERVED" }${ environment-variable "RELATIVE" } &&
+                                                                                if [ ! -f ${ environment-variable "OBSERVED_FILE" } ]
+                                                                                then
+                                                                                    fail "The observed file for ${ environment-variable "RELATIVE" } does not exist."
+                                                                                fi &&
+                                                                                assert_equals "$( ${ pkgs.coreutils }/bin/cat ${ environment-variable "EXPECTED_FILE" } )" "$( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OBSERVED_FILE" } )" "The expected file does not equal the observed file for ${ environment-variable "RELATIVE" }."
+                                                                        done
+                                                                    } &&
                                                                 test_observed_expected ( )
                                                                     {
                                                                         ${ pkgs.findutils }/bin/find ${ environment-variable "OBSERVED" } -type f | while read OBSERVED_FILE
@@ -69,7 +73,7 @@
                                                         ''
                                                             ${ pkgs.coreutils }/bin/mkdir $out &&
                                                                 export OBSERVED=$out/observed &&
-                                                                ${ pkgs.writeShellScript "observed" observed } &&
+                                                                ${ pkgs.writeShellScript "observed" observed } ${ environment-variable "OBSERVED" } &&
                                                                 export EXPECTED=${ expected-path } &&
                                                                 if ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > $out/result
                                                                 then
@@ -94,7 +98,7 @@
                                                         expected-path = ./expected ;
                                                         observed =
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable "OBSERVED" }
+                                                                ${ pkgs.coreutils }/bin/echo 774cee76b63f8da4a28aac5aa644d7bb3cb5ff12274e43060136cdad41a353ab3b25281124900b9e07c513e815373b6fe025ee647ede2225825de9f6c216f555 > ${ environment-variable 1 }
                                                             '' ;
                                                     } ;
                                             success =
@@ -103,7 +107,7 @@
                                                         expected-path = ./expected ;
                                                         observed =
                                                             ''
-                                                                ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable "OBSERVED" }
+                                                                ${ pkgs.coreutils }/bin/echo bb882270c0d417368b5d4b08bbdfb27c772137e5b79265422d8d0245ce923f336f4ce661b8b341de1fb2f82fe5b249dbc409b98c45ab6082baf0e983000e93f9 > ${ environment-variable 1 }
                                                             '' ;
                                                     } ;
                                                 test =
