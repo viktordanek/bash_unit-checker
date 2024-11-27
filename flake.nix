@@ -29,7 +29,7 @@
                                                     bash_unit =
                                                         ''
                                                             ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/result &&
-                                                                ${ pkgs.gnused }/bin/sed -e "s#\${ environment-variable "OUT" }#${ environment-variable "OUT" }#" ${ environment-variable "OUT" }/bin/re-expect
+                                                                ${ pkgs.gnused }/bin/sed -e "s#\${ environment-variable "OUT" }#${ environment-variable "OUT" }#" ${ environment-variable "OUT" }/bin/re-expect &&
                                                                 exit $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/status )
                                                         '' ;
                                                     re-expect =
