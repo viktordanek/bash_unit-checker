@@ -32,6 +32,28 @@
                                                                 ${ pkgs.gnused }/bin/sed -e "s#\${ environment-variable "OUT" }#${ environment-variable "OUT" }#" ${ environment-variable "OUT" }/bin/re-expect
                                                                 exit $( ${ pkgs.coreutils }/bin/cat ${ environment-variable "OUT" }/status )
                                                         '' ;
+                                                    commands =
+                                                        let
+                                                            mapper =
+                                                                path : name : value :
+                                                                    if builtins.typeOf name == "set" then
+                                                                        builtins.concatLists
+                                                                            [
+                                                                                [
+                                                                                    ''
+                                                                                        ${ pkgs.coreutils }/bin/mkdir ${ builtins.concatStringsSep "/" path }
+                                                                                    ''
+                                                                                ]
+                                                                                ( builtins.mapAttrs ( mapper ( builtins.concatLists [ path [ name ] ] ) ) value )
+                                                                            ]
+                                                                    else if builtins.typeOf name == "string" then
+                                                                        [
+                                                                            ''
+                                                                                ${ pkgs.coreutils }/bin/echo "${ value }" > ${ builtins.concatStringsSep "/" path }/name
+                                                                            ''
+                                                                        ]
+                                                                    else builtins.throw "6fd8f9aabd79eda61711158acbd2cfd9341e613246c481deda8516ade4d5ff2feafd5d98e65ca990028efd8ca696bb3796fac0977c53a411bad2c982de7f2faf" ;
+                                                            in builtins.concatStringsSep "&& " ( builtins.concatLists ( builtins.attrValues ( builtins.mapAttrs ( mapper [ ] ) observed ) ) ) ;
                                                     re-expect =
                                                         ''
                                                             ${ pkgs.git }/bin/git rm -rf ${ expected-name } && ${ pkgs.coreutils }/bin/cp --recursive ${ environment-variable "OUT" }/observed ${ expected-name } && ${ pkgs.git }/bin/git add ${ expected-name }
@@ -73,7 +95,7 @@
                                                         ''
                                                             ${ pkgs.coreutils }/bin/mkdir $out &&
                                                                 export OBSERVED=$out/observed &&
-                                                                ${ pkgs.writeShellScript "observed" observed } ${ environment-variable "OBSERVED" } &&
+                                                                ${ commands } &&
                                                                 export EXPECTED=${ expected-path } &&
                                                                 if ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > $out/result
                                                                 then
@@ -93,7 +115,7 @@
                                     checks =
                                         let
                                             failure =
-                                                self.lib
+                                                lib
                                                     {
                                                         expected-path = ./expected ;
                                                         observed =
