@@ -73,7 +73,7 @@
                                                         ''
                                                             ${ pkgs.coreutils }/bin/mkdir $out &&
                                                                 export OBSERVED=$out/observed &&
-                                                                ${ pkgs.writeShellScript "observed" observed ${ environment-variable "OBSERVED" } &&
+                                                                ${ pkgs.writeShellScript "observed" observed } ${ environment-variable "OBSERVED" } &&
                                                                 export EXPECTED=${ expected-path } &&
                                                                 if ${ pkgs.bash_unit }/bin/bash_unit ${ pkgs.writeShellScript "test" test } > $out/result
                                                                 then
